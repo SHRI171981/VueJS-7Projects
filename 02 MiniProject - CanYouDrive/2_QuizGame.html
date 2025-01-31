@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+    <head>
+        <title>
+            QuizGame
+        </title>
+        <style type="text/css">
+            body{
+                padding: 20px;
+                font-size: 2em;
+            }
+            .stop{
+                color:white;
+                border: white;
+            } 
+            .stop input{
+                background: transparent;
+                border: none;
+                outline: none;
+            }
+        </style>
+        <script src = "https://unpkg.com/vue@3.4.0"></script>
+    </head>
+    <body>
+        <div id="app">
+            <div :class="{stop: stopped}"> <!-- When quiz is running show this. After that make it white(invisible) -->
+                <div>Question:{{ q_num }} => {{ cur_Q }}</div>
+                <label>Ans: </label><input v-model = "actual_ans" type="number"/>
+                <div>Score: {{cur_score}}</div>
+            </div>
+            <div :class="{stop: !stopped }"> <!-- Show this when quiz is stopped-->
+                <div>Final Score: {{ cur_score }}</div>
+            </div>
+        </div>
+        <script>
+            const {createApp, ref, computed} = Vue;
+            const App = {
+                setup(){
+                    let Q = ["2 + 5","6 - 5","12 * 4","8/2","1+1"];
+                    let ans = [7,1,48,4,2];
+
+                    let i = ref(0);
+                    let score = ref(0);
+                    let actual_ans = ref(null); // input bind
+
+                    let q_num = computed(() => {
+                        return i.value + 1 // show q_num
+                    })
+
+                    let cur_Q = computed(() => {
+                        return Q[i.value]; // reactive question 
+                    })
+
+                    let cur_score = computed(() => {
+                        return score.value // reactive score
+                    })
+                    
+                    let stopped = computed(() => {
+                        let isStopped = i.value === Q.length
+                        if (isStopped){
+                            clearInterval(running); // stop running when last element is croseed
+                        }
+                        return isStopped; // reactive stopping
+                    })
+                    
+                    const check = () => { 
+                        if (actual_ans.value === ans[i.value]){
+                            score.value ++; // main condition
+                        }
+                        actual_ans.value = null // make answer box blank
+                        i.value++ // increment q_num
+                    }
+
+                    let running = setInterval(check,2000)
+                    return { q_num,cur_Q,actual_ans,cur_score,stopped }
+
+                }
+            }
+            createApp(App).mount('#app');
+        </script>
+    </body>
+</html>
+    
